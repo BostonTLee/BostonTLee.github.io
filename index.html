@@ -1,12 +1,898 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hello</title>
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
-    <p>Under construction (Beep)</p>
-  </body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boston Lee</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Minimal Palette */
+            --soft-white: #EAE7DC;
+            --warm-white: #F5F3ED;
+            --off-black: #2A2A2A;
+            --charcoal: #3D3D3D;
+            --muted-terracotta: #A8786A;
+            --terracotta-dark: #8B6355;
+            --soft-sage: #A4B0A0;
+            --subtle-border: #D5D2C7;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--off-black);
+            background: var(--soft-white);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--soft-white);
+            padding: 40px 20px;
+            overflow-y: auto;
+            border-right: 1px solid var(--subtle-border);
+        }
+
+        .sidebar h1 {
+            color: var(--off-black);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .sidebar nav>a,
+        .sidebar nav>details>summary {
+            display: block;
+            color: var(--charcoal);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar nav>a:hover,
+        .sidebar nav>details>summary:hover {
+            color: var(--off-black);
+            background: var(--warm-white);
+            padding-left: 20px;
+        }
+
+        .sidebar nav details {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav details summary {
+            list-style: none;
+        }
+
+        .sidebar nav details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .sidebar nav details summary::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.3s;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .sidebar nav details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .sidebar nav details .sub-links {
+            padding-left: 15px;
+            margin-top: 8px;
+        }
+
+        .sidebar nav details .sub-links a {
+            display: block;
+            color: var(--charcoal);
+            text-decoration: none;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .sidebar nav details .sub-links a:hover {
+            background: var(--warm-white);
+            color: var(--off-black);
+            padding-left: 16px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content {
+            margin-left: 250px;
+            flex: 1;
+        }
+
+        .section {
+            min-height: 100vh;
+            padding: 80px 60px;
+            background: var(--soft-white);
+        }
+
+        .section h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            color: var(--off-black);
+            font-weight: 700;
+        }
+
+        .section h3 {
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: var(--off-black);
+            font-weight: 600;
+        }
+
+        .section p {
+            margin-bottom: 20px;
+            font-size: 18px;
+            max-width: 800px;
+            line-height: 1.7;
+        }
+
+        /* ===== BLOG ARTICLES ===== */
+        article {
+            background: var(--warm-white);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--subtle-border);
+        }
+
+        article h4 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: var(--off-black);
+            font-weight: 600;
+        }
+
+        article time {
+            color: var(--charcoal);
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        article details {
+            margin-top: 15px;
+        }
+
+        article details summary {
+            cursor: pointer;
+            color: var(--muted-terracotta);
+            font-weight: 600;
+            padding: 10px 0;
+            list-style: none;
+            user-select: none;
+            margin-top: 10px;
+        }
+
+        article details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        article details summary::after {
+            content: ' ▼';
+            font-size: 10px;
+            margin-left: 5px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        article details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        article details summary:hover {
+            color: var(--terracotta-dark);
+        }
+
+        article details[open] summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid var(--subtle-border);
+            position: sticky;
+            top: 0;
+            background: var(--warm-white);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-left: -30px;
+            margin-right: -30px;
+            margin-top: -30px;
+            padding-left: 30px;
+            padding-right: 30px;
+            padding-top: 30px;
+        }
+
+        article details .full-content {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        article .summary-text {
+            margin-bottom: 30px;
+        }
+
+        article .summary-text p {
+            margin-bottom: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        article .excerpt {
+            color: var(--off-black);
+            line-height: 1.7;
+        }
+
+        /* ===== SOCIAL LINKS ===== */
+        .social-links {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--off-black);
+            color: var(--soft-white);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .social-links a:hover {
+            background: var(--charcoal);
+        }
+
+        /* ===== ADDRESS/CONTACT ===== */
+        address {
+            font-style: normal;
+            margin-top: 20px;
+        }
+
+        address a {
+            color: var(--muted-terracotta);
+            text-decoration: none;
+        }
+
+        address a:hover {
+            color: var(--terracotta-dark);
+            text-decoration: underline;
+        }
+
+        /* ===== CODE BLOCKS ===== */
+        blockquote {
+            margin: 20px 0;
+            padding: 15px 20px;
+            padding-left: 40px;
+            background: var(--warm-white);
+            border-left: 4px solid var(--muted-terracotta);
+        }
+
+        blockquote p {
+            margin-bottom: 10px;
+        }
+
+        blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        pre {
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--warm-white);
+            border-left: 4px solid var(--soft-sage);
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        p code,
+        li code {
+            background: var(--warm-white);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        /* ===== LISTS ===== */
+        ol,
+        ul {
+            padding-left: 2em;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* ===== FOOTER ===== */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 100vh;
+        }
+
+        footer {
+            flex-basis: 100%;
+            margin-left: 250px;
+            padding: 40px 60px;
+            background: var(--off-black);
+            color: var(--soft-white);
+        }
+
+        footer a {
+            color: var(--muted-terracotta);
+        }
+
+        footer a:hover {
+            color: var(--soft-white);
+        }
+
+        /* ===== BACK TO TOP BUTTON ===== */
+        .back-to-top {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .back-to-top {
+                display: block;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                background: var(--off-black);
+                color: var(--soft-white);
+                text-decoration: none;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                line-height: 1;
+                z-index: 999;
+                transition: background 0.3s;
+            }
+
+            .back-to-top:hover {
+                background: var(--charcoal);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 200px;
+            }
+
+            .section {
+                padding: 40px 30px;
+            }
+
+            footer {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--subtle-border);
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .section {
+                padding: 30px 20px;
+            }
+
+            .section h2 {
+                font-size: 28px;
+            }
+
+            .section h3 {
+                font-size: 20px;
+            }
+
+            .section p {
+                font-size: 16px;
+                max-width: 100%;
+            }
+
+            article {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            article h4 {
+                font-size: 18px;
+            }
+
+            .social-links {
+                gap: 15px;
+            }
+
+            footer {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <aside class="sidebar" id="top">
+            <h1>Boston Lee</h1>
+            <nav>
+                <a href="#intro">Introduction</a>
+                <details>
+                    <summary>Blog</summary>
+                    <div class="sub-links">
+                        <a href="#blog">All Posts</a>
+                        <a href="#20230429000000-blog">Website using Astro on AWS S3</a>
+                    </div>
+                </details>
+                <a href="#links">Connect</a>
+            </nav>
+        </aside>
+        <main class="content">
+            <section id="intro" class="section">
+                <h2>Welcome!</h2>
+                <p></p>
+
+                <h3>About Me</h3>
+                <p>I am a software engineer based out of Colorado.
+                   I have two degrees—a BS in Statistics and a BA in Philosophy—one of which I use slightly more than
+                   the other.
+                   If you are interested in the details of my career, please visit my LinkedIn account,
+                   linked at the bottom of this page.
+                </p>
+
+                <h3>Interests</h3>
+
+                <p>In my free time, I like to run, play board games, and read.</p>
+                <p>I have a particular fascination with sticking to a CLI-based workflow.
+                   I find that this allows me to be flexible with the OS I run,
+                   as well as having knock-on benefits in encouraging scripting and automation.
+                </p>
+
+                <h3>What I Do</h3>
+
+                <p>I've spent the majority of my relatively short career dealing with data.
+                   I've worked with structured data, image data, email text data, and some custom binary data,
+                   to name a few.
+                   My data work at my most recent job has mostly been to support machine learning applications.
+                </p>
+                <p>Recently, I (and I'm sure many others) have been exploring the capabilities of AI agents.
+                   I've liked playing around with Google's ADK in particular.
+                   I'm currently working on an agent-focused product.
+                </p>
+            </section>
+
+            <section id="blog" class="section">
+                <h2>Blog</h2>
+
+                <article id="20230429000000-blog">
+                    <h4>Deploying an astro.build website on AWS S3, with CloudFront</h4>
+                    <time datetime="2023-04-29">Apr 29, 2023</time>
+                    <div class="summary-text">
+                        <p><strong>Note:</strong> The following article is outdated, but preserved for reference.
+                           I have since completely redone my website (and become much more extreme about simplicity).</p>
+                    </div>
+                    <details>
+                        <summary>Continue reading</summary>
+                        <div class="full-content">
+                            <p>It is only fitting that the first post on this blog would be about the construction of this
+                            website.</p>
+                            <p>The soft requirements for this website were as follows:</p>
+                            <ol>
+                                <li>Have an easy-to-use static static site generator</li>
+                                <li>Have the website be as cheap as reasonably possible, while still hosted in the
+                                    cloud.</li>
+                                <li>Use Terraform for deployment. I wanted practice with Terraform, and enjoy the
+                                    paradigm of infrastructure-as-code.</li>
+                            </ol>
+
+                            <p>After playing around with Astro, Hugo, and Pelican, I found Astro to have the best
+                                balance of ease-of-use and community support. So that was point (1) covered.</p>
+
+                            <p>As far as point (2), I knew that it was possible, at least in theory, to deploy a website
+                                on AWS S3. If that was possible, it would almost certainly be cheaper than most other
+                                site hosting options, but would require a solely static site. This restriction suited me
+                                fine. I don't ever see moving beyond a simple static site.</p>
+
+                            <p>For point (3), obviously AWS has extensive Terraform integration. That all set, I
+                                underwent a journey of trying to find the best way to use S3 to host a static site.</p>
+
+                            <h3>Prerequisites</h3>
+                            <p>Throughout this process, I had a DNS record from my domain provider that redirected all
+                                requests from <code>bostonlee.com</code> to <code>www.bostonlee.com</code>.</p>
+
+                            <p><strong>The Terraform version at the time of writing is <code>4.65.0</code>.</strong> I
+                                note this because I read a few blogs on this topic, and ended up having to resort to
+                                reading documentation, because all of the Terraform resources had changed.</p>
+
+                            <h3>Stage 1: S3 Static site support</h3>
+                            <p>S3 has the ability to host a static site directly, through <a
+                                    href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteEndpoints.html">S3
+                                    website endpoints</a>. This lets you put your website files into a bucket, and then
+                                have those files hosted at a designated endpoint.</p>
+
+                            <p>The terraform data source for this resource is <a
+                                    href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_website_configuration">here</a>.
+                                This requires you to make the bucket publicly accessible, which requires a bucket
+                                policy. The Terraform documentation for this resource is <a
+                                    href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document">here</a>.
+                            </p>
+
+                            <p>From there, I simply had to add a CNAME record pointing from
+                                <code>www.bostonlee.com</code> to the website endpoint given by S3.
+                            </p>
+
+                            <p>My domain provider for some reason would not route traffic correctly unless the bucket
+                                name started with "www", so the S3 website endpoint looked like
+                                <code>http://www.bostonlee.com.s3-website.us-east-1.amazonaws.com</code> instead of
+                                <code>http://bostonlee.com.s3-website.us-east-1.amazonaws.com</code>. That is, I had to
+                                name the bucket <code>www.bostonlee.com</code>.
+                            </p>
+
+                            <p>This approach worked! I was able to successfully access my website. However, I
+                                underestimated the importance of HTTPS to website perception. Astute readers (or readers
+                                whose eyes are drawn to color) probably noticed the large red box on the bottom of the
+                                S3 website endpoint documentation. An excerpt:</p>
+
+                            <blockquote>
+                                <p>Amazon S3 website endpoints do not support HTTPS or access points. If you want to use
+                                    HTTPS, you can use Amazon CloudFront to serve a static website hosted on Amazon S3.
+                                </p>
+                            </blockquote>
+
+                            <p>When I showed my rough-draft website to friends and family, the first comment from
+                                everyone was about the lack of secured connection. Long gone are the days when I would
+                                have to chastise relatives about getting HTTPS Everywhere. Now I was the one getting a
+                                look for not having a secure connection. And, fair enough. When everyone's browser gives
+                                them explicit warning about an insecure connection, it is probably not a great idea to
+                                simply use a service with no support for secure connection and move on.</p>
+
+                            <p>Luckily, the AWS documentation provided a specific solution: Serve the website on
+                                CloudFront.</p>
+
+                            <h3>Stage 2: CloudFront serving a website from an S3 bucket</h3>
+                            <p>This was quite a complicated process. I admit, I don't fully understand all of the
+                                possible arguments for a CloudFront distribution resource. However, I will do my best to
+                                lay out the pieces of infrastructure that make up the website.</p>
+
+                            <p>I set up my Terraform to use an S3 bucket (manually-managed) as a backend:</p>
+
+                            <pre><code>terraform {
+  required_providers {
+    aws = {
+      version = "&gt;= 2.7.0"
+      source  = "hashicorp/aws"
+    }
+  }
+  backend "s3" {
+    bucket = "bostonlee.com-terraform"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+  }
+}</code></pre>
+
+                            <p>Then, I created some variables that I could use to abstract my domain name out of the
+                                components:</p>
+
+                            <pre><code>variable "domain_name" {
+  default = "bostonlee.com"
+  type    = string
+}
+
+variable "bucket_name" {
+  default = "www.bostonlee.com"
+  type    = string
+}</code></pre>
+
+                            <p>I then used those variables to set up an S3 bucket:</p>
+
+                            <pre><code>resource "aws_s3_bucket" "website_bucket" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_public_access_block" "block_public_access" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_policy" "access_control" {
+  bucket = aws_s3_bucket.website_bucket.id
+  policy = data.aws_iam_policy_document.access_control.json
+}
+
+data "aws_iam_policy_document" "access_control" {
+  statement {
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.website_bucket.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.s3_distribution.arn]
+    }
+  }
+}</code></pre>
+
+                            <p>Note that the bucket blocks public access, and only allows access from the
+                                (yet-to-be-created) CloudFront distribution. Special thanks to <a
+                                    href="https://advancedweb.hu/how-to-migrate-to-cloudfront-origin-access-control-from-origin-access-identity/">this
+                                    blog</a> for the policy document configuration. The application order of the blocks
+                                in this file is not straightforward. The bucket policy depends on the policy document,
+                                which in turn depends on the CloudFront distribution. So, the CloudFront distribution
+                                will be deployed before the policy is applied (unless I am wildly misunderstanding…).
+                                However, I opted to keep all of the S3-related configuration in the same place.</p>
+
+                            <p>Next up is a Cloudfront distribution that uses that S3 bucket. I had to play around with
+                                the arguments for this, given that some of the arguments are required, but the
+                                documentation does not give an easy answer for what to do in the simplest possible case.
+                                The caching behavior, for instance, is simply copied from the Terraform example docs.
+                                Seeing as I was hosting a minimal static site, I wanted the easiest possible solution.
+                                Here is what I came up with:</p>
+
+                            <pre><code>locals {
+  s3_origin_id = "bolee_website_origin"
+}
+
+resource "aws_cloudfront_origin_access_control" "website_access_control" {
+  name                              = "example"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.website_access_control.id
+    origin_id                = local.s3_origin_id
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+
+  aliases = ["www.${var.domain_name}"]
+
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+    viewer_protocol_policy = "redirect-to-https"
+    target_origin_id       = local.s3_origin_id
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.index_redirect.arn
+    }
+  }
+
+  price_class = "PriceClass_100"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "whitelist"
+      locations        = ["US", "CA", "GB", "DE"]
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.website_acm_certificate.id
+    ssl_support_method  = "sni-only"
+  }
+}
+
+resource "aws_cloudfront_function" "index_redirect" {
+  name    = "index_redirect"
+  runtime = "cloudfront-js-1.0"
+  comment = "https://docs.astro.build/en/guides/deploy/aws/#cloudfront-functions-setup"
+  publish = true
+  code    = file("${path.module}/redirect_function.js")
+}</code></pre>
+
+                            <p>Let's break down the pieces of this. The components of the Cloudfront distribution are:
+                            </p>
+
+                            <ol>
+                                <li>
+                                    <p>A Cloudfront distribution, where the website will actually be served. This is
+                                        relatively self-explanatory, though there is a lot of configuration that can be
+                                        set. The part of the configuration that makes this distribution markedly
+                                        different than hosting on S3 is the <code>viewer_certificate</code> block. This
+                                        block allows the site to be secured (note the "redirect-to-https" argument as
+                                        well). This requires a separate ACM certificate, which I created as follows:</p>
+
+                                    <pre><code>resource "aws_acm_certificate" "website_acm_certificate" {
+  domain_name       = "www.${var.domain_name}"
+  validation_method = "EMAIL"
+}
+
+resource "aws_acm_certificate_validation" "website_certificate_validation" {
+  certificate_arn = aws_acm_certificate.website_acm_certificate.arn
+}</code></pre>
+
+                                    <p>This allows for the creation of a certificate with email validation. I had an
+                                        email address set as a <a
+                                            href="https://www.namecheap.com/support/knowledgebase/article.aspx/310/2214/how-to-set-up-a-catchall-wildcard-email-address/">catchall
+                                            on my domain provider (NameCheap)</a>. This allowed me to easily verify the
+                                        certificate. Whenever the certificate must be recreated upon a
+                                        <code>terraform apply</code>, the deployment process will wait for the ACM
+                                        certificate to be verified. So, this method is not very prone to automation.
+                                        However, it is convenient.
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>Notice the CloudFront Function block. This has to do with a quirk in how Astro
+                                        handles URLs. URLs in astro are represented as paths, such as
+                                        <code>www.mydomain.com/blog/this-blog/</code>, but in reality those links need
+                                        to get redirected "under the hood" to actual index documents, like
+                                        <code>www.mydomain.com/blog/this-blog/index.html</code>. Because I was simply
+                                        planning on deploying a pre-built static site to CloudFront, the astro server
+                                        would not be doing this work for me. Luckily, the Astro docs provide a <a
+                                            href="https://docs.astro.build/en/guides/deploy/aws/#cloudfront-functions-setup">nice
+                                            guide</a> for making links work in CloudFront. The guide also mentions a
+                                        couple of other AWS hosting methods, including S3 static sites (I wish I had
+                                        looked in the Astro docs from the outset…). The recommended function looks as
+                                        follows:
+                                    </p>
+
+                                    <pre><code>function handler(event) {
+      var request = event.request;
+      var uri = request.uri;
+
+      // Check whether the URI is missing a file name.
+      if (uri.endsWith('/')) {
+              request.uri += 'index.html';
+            } 
+      // Check whether the URI is missing a file extension.
+      else if (!uri.includes('.')) {
+              request.uri += '/index.html';
+            }
+
+      return request;
+}</code></pre>
+
+                                    <p>I opted to simply include this function in the same directory as my Terraform
+                                        files for the time being.</p>
+                                </li>
+                                <li>
+                                    <p>There is also an <a
+                                            href="https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-cloudfront-introduces-origin-access-control-oac/">Origin
+                                            Access Control</a> block, which helps secure the site further.</p>
+                                </li>
+                            </ol>
+
+                            <p>Once all of that was in place, I simply had to run <code>terraform apply</code>, and
+                                verify the certificate through my email.</p>
+
+                            <p>Heading to the console, I could see the CloudFront distribution URL: <a
+                                    href="https://d3oizcfhaagn9u.cloudfront.net">d3oizcfhaagn9u.cloudfront.net</a>. Sure
+                                enough, this link is to my site.</p>
+
+                            <p>The final piece of the puzzle was to add a CNAME record from the <code>www</code>
+                                subdomain of my site to the CloudFront distribution (Here is a <a
+                                    href="https://www.namecheap.com/support/knowledgebase/article.aspx/9646/2237/how-to-create-a-cname-record-for-your-domain/">tutorial
+                                    from NameCheap</a> on the subject). As mentioned at the beginning of this article, I
+                                set up DNS to redirect bare requests for <code>bostonlee.com</code> to
+                                <code>www.bostonlee.com</code>. So, the CNAME record would still work for those typing
+                                only <code>bostonlee.com</code> into their browser.
+                            </p>
+
+                            <p>And that is the current state of my website setup, as of the date of this article. If
+                                things change a fair amount, I may write more about it and add an update here.</p>
+
+                            <p>If you have any suggestions for me on this front, I would be more than happy to hear
+                                them. I wish you luck if you want to try this out yourself!</p>
+                        </div>
+                    </details>
+                </article>
+
+                <section id="links" class="section">
+                    <h3>Links</h3>
+                    <div class="social-links">
+                        <a href="https://github.com/BostonTLee" rel="noopener noreferrer">GitHub</a>
+                        <a href="https://www.linkedin.com/in/boston-lee/" rel="noopener noreferrer">LinkedIn</a>
+                    </div>
+                </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Boston Lee. All rights reserved.</p>
+            <p><a href="https://jeffhuang.com/designed_to_last/">This page was designed to last.</a></p>
+        </footer>
+
+        <a href="#top" class="back-to-top" aria-label="Back to top">↑</a>
+    </div>
+</body>
+
+
 </html>
