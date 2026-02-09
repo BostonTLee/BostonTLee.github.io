@@ -5,60 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume | Boston Lee</title>
     <meta name="description" content="View my professional resume and experience.">
+
+    <link rel="canonical" href="http://files.bostonlee.com/resume.pdf">
+    <meta http-equiv="refresh" content="0; url=http://files.bostonlee.com/resume.pdf">
     
     <meta property="og:title" content="Boston Lee - Resume">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bostonlee.com/resume/">
 
     <style>
-        /* Eliminate all spacing around the edge of the screen */
-        body, html {
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden; /* Prevents double scrollbars */
-            background-color: #525659; /* Matches standard PDF viewer grey */
-        }
-
-        /* Make the PDF container fill the entire viewport */
-        #resume-container {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Fallback link styling for mobile or restricted browsers */
-        .fallback {
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100%;
-            color: white;
+            color: #111;
             font-family: sans-serif;
             text-align: center;
             padding: 20px;
         }
 
         a {
-            color: #00d1b2;
+            color: #0b66c3;
             text-decoration: underline;
         }
     </style>
+
+    <script>
+        window.location.replace("http://files.bostonlee.com/resume.pdf");
+    </script>
 </head>
 <body>
-
-    <iframe 
-        id="resume-container"
-        src="https://bostonlee-public.s3.amazonaws.com/resume.pdf#view=FitH" 
-        type="application/pdf">
-        
-        <div class="fallback">
-            <p>It looks like your browser doesn't support embedded PDFs. 
-               <a href="https://bostonlee-public.s3.amazonaws.com/resume.pdf">Click here to download the PDF.</a>
-            </p>
-        </div>
-    </iframe>
-
+    <noscript>
+        <p><a href="http://files.bostonlee.com/resume.pdf">Continue to resume PDF</a></p>
+    </noscript>
 </body>
 </html>
