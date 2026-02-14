@@ -26,7 +26,6 @@
 
         html {
             scroll-behavior: smooth;
-            overflow-x: hidden;
         }
 
         body {
@@ -34,8 +33,6 @@
             line-height: 1.6;
             color: var(--off-black);
             background: var(--soft-white);
-            /* Guard against minor horizontal overflow on mobile (code blocks still scroll internally) */
-            overflow-x: hidden;
         }
 
         /* ===== SIDEBAR ===== */
@@ -163,12 +160,10 @@
         article {
             --article-padding: 30px;
             background: var(--warm-white);
-            padding: var(--article-padding);
             margin-bottom: 30px;
             border-radius: 8px;
             border: 1px solid var(--subtle-border);
-            /* Ensures the sticky <summary> "full-bleed" effect can't create page-wide overflow */
-            overflow-x: hidden;
+            padding: 0;
         }
 
         article h4 {
@@ -176,6 +171,7 @@
             margin-bottom: 10px;
             color: var(--off-black);
             font-weight: 600;
+            padding: var(--article-padding) var(--article-padding) 0;
         }
 
         article time {
@@ -183,6 +179,7 @@
             font-size: 14px;
             margin-bottom: 15px;
             display: block;
+            padding: 0 var(--article-padding);
         }
 
         article details {
@@ -191,11 +188,12 @@
 
         article details summary {
             display: block;
+            width: 100%;
             max-width: 100%;
             cursor: pointer;
             color: var(--muted-terracotta);
             font-weight: 600;
-            padding: 10px 0;
+            padding: 10px var(--article-padding);
             list-style: none;
             user-select: none;
             margin-top: 10px;
@@ -222,29 +220,25 @@
         }
 
         article details[open] summary {
+            margin-top: 0;
             margin-bottom: 20px;
-            padding: 15px;
+            padding: var(--article-padding) var(--article-padding) 15px;
             border-bottom: 1px solid var(--subtle-border);
             position: sticky;
             top: 0;
             background: var(--warm-white);
             z-index: 10;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            /* "Full-bleed" sticky header that stays within the article's border on all screen sizes */
-            margin-left: calc(-1 * var(--article-padding));
-            margin-right: calc(-1 * var(--article-padding));
-            margin-top: calc(-1 * var(--article-padding));
-            padding-left: var(--article-padding);
-            padding-right: var(--article-padding);
-            padding-top: var(--article-padding);
         }
 
         article details .full-content {
             animation: fadeIn 0.3s ease-in;
+            padding: 0 var(--article-padding) var(--article-padding);
         }
 
         article .summary-text {
             margin-bottom: 30px;
+            padding: 0 var(--article-padding);
         }
 
         article .summary-text p {
@@ -473,7 +467,6 @@
 
             article {
                 --article-padding: 20px;
-                padding: var(--article-padding);
                 margin-bottom: 20px;
             }
 
