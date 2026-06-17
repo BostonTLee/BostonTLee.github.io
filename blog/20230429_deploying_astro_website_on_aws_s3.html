@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boston Lee | Deploying an astro.build website on AWS S3, with CloudFront</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <main>
+        <article>
+            <header>
+                <nav><a href="../index.html">Home</a></nav>
+                <h1>Deploying an astro.build website on AWS S3, with CloudFront</h1>
+                <p>Published on <time datetime="2023-04-29">Apr 29, 2023</time></p>
+            </header>
+            <p><strong>Note:</strong> The following article is outdated, but preserved for reference.
+                           I have since completely redone my website (and become much more extreme about simplicity).</p>
+<p>It is only fitting that the first post on this blog would be about the construction of this
+                            website.</p>
+<p>The soft requirements for this website were as follows:</p>
+<ol>
+<li>Have an easy-to-use static static site generator</li>
+<li>Have the website be as cheap as reasonably possible, while still hosted in the
+                                    cloud.</li>
+<li>Use Terraform for deployment. I wanted practice with Terraform, and enjoy the
+                                    paradigm of infrastructure-as-code.</li>
+</ol>
+<p>After playing around with Astro, Hugo, and Pelican, I found Astro to have the best
+                                balance of ease-of-use and community support. So that was point (1) covered.</p>
+<p>As far as point (2), I knew that it was possible, at least in theory, to deploy a website
+                                on AWS S3. If that was possible, it would almost certainly be cheaper than most other
+                                site hosting options, but would require a solely static site. This restriction suited me
+                                fine. I don't ever see moving beyond a simple static site.</p>
+<p>For point (3), obviously AWS has extensive Terraform integration. That all set, I
+                                underwent a journey of trying to find the best way to use S3 to host a static site.</p>
+<h3>Prerequisites</h3>
+<p>Throughout this process, I had a DNS record from my domain provider that redirected all
+                                requests from <code>bostonlee.com</code> to <code>www.bostonlee.com</code>.</p>
+<p><strong>The Terraform version at the time of writing is <code>4.65.0</code>.</strong> I
+                                note this because I read a few blogs on this topic, and ended up having to resort to
+                                reading documentation, because all of the Terraform resources had changed.</p>
+<h3>Stage 1: S3 Static site support</h3>
+<p>S3 has the ability to host a static site directly, through <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteEndpoints.html">S3
+                                    website endpoints</a>. This lets you put your website files into a bucket, and then
+                                have those files hosted at a designated endpoint.</p>
+<p>The terraform data source for this resource is <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_website_configuration">here</a>.
+                                This requires you to make the bucket publicly accessible, which requires a bucket
+                                policy. The Terraform documentation for this resource is <a href="https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document">here</a>.
+                            </p>
+<p>From there, I simply had to add a CNAME record pointing from
+                                <code>www.bostonlee.com</code> to the website endpoint given by S3.
+                            </p>
+<p>My domain provider for some reason would not route traffic correctly unless the bucket
+                                name started with "www", so the S3 website endpoint looked like
+                                <code>http://www.bostonlee.com.s3-website.us-east-1.amazonaws.com</code> instead of
+                                <code>http://bostonlee.com.s3-website.us-east-1.amazonaws.com</code>. That is, I had to
+                                name the bucket <code>www.bostonlee.com</code>.
+                            </p>
+<p>This approach worked! I was able to successfully access my website. However, I
+                                underestimated the importance of HTTPS to website perception. Astute readers (or readers
+                                whose eyes are drawn to color) probably noticed the large red box on the bottom of the
+                                S3 website endpoint documentation. An excerpt:</p>
+<blockquote>
+<p>Amazon S3 website endpoints do not support HTTPS or access points. If you want to use
+                                    HTTPS, you can use Amazon CloudFront to serve a static website hosted on Amazon S3.
+                                </p>
+</blockquote>
+<p>When I showed my rough-draft website to friends and family, the first comment from
+                                everyone was about the lack of secured connection. Long gone are the days when I would
+                                have to chastise relatives about getting HTTPS Everywhere. Now I was the one getting a
+                                look for not having a secure connection. And, fair enough. When everyone's browser gives
+                                them explicit warning about an insecure connection, it is probably not a great idea to
+                                simply use a service with no support for secure connection and move on.</p>
+<p>Luckily, the AWS documentation provided a specific solution: Serve the website on
+                                CloudFront.</p>
+<h3>Stage 2: CloudFront serving a website from an S3 bucket</h3>
+<p>This was quite a complicated process. I admit, I don't fully understand all of the
+                                possible arguments for a CloudFront distribution resource. However, I will do my best to
+                                lay out the pieces of infrastructure that make up the website.</p>
+<p>I set up my Terraform to use an S3 bucket (manually-managed) as a backend:</p>
+<pre><code>terraform {
+  required_providers {
+    aws = {
+      version = "&gt;= 2.7.0"
+      source  = "hashicorp/aws"
+    }
+  }
+  backend "s3" {
+    bucket = "bostonlee.com-terraform"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
+  }
+}</code></pre>
+<p>Then, I created some variables that I could use to abstract my domain name out of the
+                                components:</p>
+<pre><code>variable "domain_name" {
+  default = "bostonlee.com"
+  type    = string
+}
+
+variable "bucket_name" {
+  default = "www.bostonlee.com"
+  type    = string
+}</code></pre>
+<p>I then used those variables to set up an S3 bucket:</p>
+<pre><code>resource "aws_s3_bucket" "website_bucket" {
+  bucket = var.bucket_name
+}
+
+resource "aws_s3_bucket_public_access_block" "block_public_access" {
+  bucket = aws_s3_bucket.website_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_policy" "access_control" {
+  bucket = aws_s3_bucket.website_bucket.id
+  policy = data.aws_iam_policy_document.access_control.json
+}
+
+data "aws_iam_policy_document" "access_control" {
+  statement {
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.website_bucket.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.s3_distribution.arn]
+    }
+  }
+}</code></pre>
+<p>Note that the bucket blocks public access, and only allows access from the
+                                (yet-to-be-created) CloudFront distribution. Special thanks to <a href="https://advancedweb.hu/how-to-migrate-to-cloudfront-origin-access-control-from-origin-access-identity/">this
+                                    blog</a> for the policy document configuration. The application order of the blocks
+                                in this file is not straightforward. The bucket policy depends on the policy document,
+                                which in turn depends on the CloudFront distribution. So, the CloudFront distribution
+                                will be deployed before the policy is applied (unless I am wildly misunderstanding…).
+                                However, I opted to keep all of the S3-related configuration in the same place.</p>
+<p>Next up is a Cloudfront distribution that uses that S3 bucket. I had to play around with
+                                the arguments for this, given that some of the arguments are required, but the
+                                documentation does not give an easy answer for what to do in the simplest possible case.
+                                The caching behavior, for instance, is simply copied from the Terraform example docs.
+                                Seeing as I was hosting a minimal static site, I wanted the easiest possible solution.
+                                Here is what I came up with:</p>
+<pre><code>locals {
+  s3_origin_id = "bolee_website_origin"
+}
+
+resource "aws_cloudfront_origin_access_control" "website_access_control" {
+  name                              = "example"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.website_access_control.id
+    origin_id                = local.s3_origin_id
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+
+  aliases = ["www.${var.domain_name}"]
+
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD", "OPTIONS"]
+    cached_methods  = ["GET", "HEAD"]
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+    viewer_protocol_policy = "redirect-to-https"
+    target_origin_id       = local.s3_origin_id
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.index_redirect.arn
+    }
+  }
+
+  price_class = "PriceClass_100"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "whitelist"
+      locations        = ["US", "CA", "GB", "DE"]
+    }
+  }
+
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.website_acm_certificate.id
+    ssl_support_method  = "sni-only"
+  }
+}
+
+resource "aws_cloudfront_function" "index_redirect" {
+  name    = "index_redirect"
+  runtime = "cloudfront-js-1.0"
+  comment = "https://docs.astro.build/en/guides/deploy/aws/#cloudfront-functions-setup"
+  publish = true
+  code    = file("${path.module}/redirect_function.js")
+}</code></pre>
+<p>Let's break down the pieces of this. The components of the Cloudfront distribution are:
+                            </p>
+<ol>
+<li>
+<p>A Cloudfront distribution, where the website will actually be served. This is
+                                        relatively self-explanatory, though there is a lot of configuration that can be
+                                        set. The part of the configuration that makes this distribution markedly
+                                        different than hosting on S3 is the <code>viewer_certificate</code> block. This
+                                        block allows the site to be secured (note the "redirect-to-https" argument as
+                                        well). This requires a separate ACM certificate, which I created as follows:</p>
+<pre><code>resource "aws_acm_certificate" "website_acm_certificate" {
+  domain_name       = "www.${var.domain_name}"
+  validation_method = "EMAIL"
+}
+
+resource "aws_acm_certificate_validation" "website_certificate_validation" {
+  certificate_arn = aws_acm_certificate.website_acm_certificate.arn
+}</code></pre>
+<p>This allows for the creation of a certificate with email validation. I had an
+                                        email address set as a <a href="https://www.namecheap.com/support/knowledgebase/article.aspx/310/2214/how-to-set-up-a-catchall-wildcard-email-address/">catchall
+                                            on my domain provider (NameCheap)</a>. This allowed me to easily verify the
+                                        certificate. Whenever the certificate must be recreated upon a
+                                        <code>terraform apply</code>, the deployment process will wait for the ACM
+                                        certificate to be verified. So, this method is not very prone to automation.
+                                        However, it is convenient.
+                                    </p>
+</li>
+<li>
+<p>Notice the CloudFront Function block. This has to do with a quirk in how Astro
+                                        handles URLs. URLs in astro are represented as paths, such as
+                                        <code>www.mydomain.com/blog/this-blog/</code>, but in reality those links need
+                                        to get redirected "under the hood" to actual index documents, like
+                                        <code>www.mydomain.com/blog/this-blog/index.html</code>. Because I was simply
+                                        planning on deploying a pre-built static site to CloudFront, the astro server
+                                        would not be doing this work for me. Luckily, the Astro docs provide a <a href="https://docs.astro.build/en/guides/deploy/aws/#cloudfront-functions-setup">nice
+                                            guide</a> for making links work in CloudFront. The guide also mentions a
+                                        couple of other AWS hosting methods, including S3 static sites (I wish I had
+                                        looked in the Astro docs from the outset…). The recommended function looks as
+                                        follows:
+                                    </p>
+<pre><code>function handler(event) {
+      var request = event.request;
+      var uri = request.uri;
+
+      // Check whether the URI is missing a file name.
+      if (uri.endsWith('/')) {
+              request.uri += 'index.html';
+            } 
+      // Check whether the URI is missing a file extension.
+      else if (!uri.includes('.')) {
+              request.uri += '/index.html';
+            }
+
+      return request;
+}</code></pre>
+<p>I opted to simply include this function in the same directory as my Terraform
+                                        files for the time being.</p>
+</li>
+<li>
+<p>There is also an <a href="https://aws.amazon.com/blogs/networking-and-content-delivery/amazon-cloudfront-introduces-origin-access-control-oac/">Origin
+                                            Access Control</a> block, which helps secure the site further.</p>
+</li>
+</ol>
+<p>Once all of that was in place, I simply had to run <code>terraform apply</code>, and
+                                verify the certificate through my email.</p>
+<p>Heading to the console, I could see the CloudFront distribution URL: <a href="https://d3oizcfhaagn9u.cloudfront.net">d3oizcfhaagn9u.cloudfront.net</a>. Sure
+                                enough, this link is to my site.</p>
+<p>The final piece of the puzzle was to add a CNAME record from the <code>www</code>
+                                subdomain of my site to the CloudFront distribution (Here is a <a href="https://www.namecheap.com/support/knowledgebase/article.aspx/9646/2237/how-to-create-a-cname-record-for-your-domain/">tutorial
+                                    from NameCheap</a> on the subject). As mentioned at the beginning of this article, I
+                                set up DNS to redirect bare requests for <code>bostonlee.com</code> to
+                                <code>www.bostonlee.com</code>. So, the CNAME record would still work for those typing
+                                only <code>bostonlee.com</code> into their browser.
+                            </p>
+<p>And that is the current state of my website setup, as of the date of this article. If
+                                things change a fair amount, I may write more about it and add an update here.</p>
+<p>If you have any suggestions for me on this front, I would be more than happy to hear
+                                them. I wish you luck if you want to try this out yourself!</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>© 2026 Boston Lee. All rights reserved.</p>
+    </footer>
+</body>
+</html>
