@@ -1,0 +1,152 @@
+:root {
+    --bg: #EAE7DC;
+    --bg-card: #F5F3ED;
+    --text: #2A2A2A;
+    --text-light: #3D3D3D;
+    --accent: #A8786A;
+    --border: #D5D2C7;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+}
+
+body > header {
+    padding: 1.25rem 5%;
+    border-bottom: 1px solid var(--border);
+}
+
+body > header nav {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+body > header nav a {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+body > header nav .site-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+main,
+footer > p {
+    padding: 3rem 5%;
+}
+
+section {
+    margin-bottom: 3rem;
+}
+
+footer {
+    padding: 1.5rem 5%;
+    border-top: 1px solid var(--border);
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: 1.2;
+    margin: 1.5rem 0 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.75rem;
+}
+
+h3 {
+    font-size: 1.35rem;
+}
+
+h4 {
+    font-size: 1.15rem;
+}
+
+p,
+ul,
+ol {
+    margin-bottom: 1.25rem;
+}
+
+ul,
+ol {
+    padding-left: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+time {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+pre {
+    background: var(--bg-card);
+    border-left: 4px solid #A4B0A0;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    border-radius: 4px;
+    max-width: 100%;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+}
+
+p code,
+li code {
+    background: var(--bg-card);
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    overflow-wrap: anywhere;
+}
+
+blockquote {
+    margin: 1.25rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid var(--accent);
+    background: var(--bg-card);
+}
+
+@media (max-width: 600px) {
+    body > header nav {
+        gap: 1rem;
+    }
+
+    main,
+    footer > p {
+        padding: 2rem 5%;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}
